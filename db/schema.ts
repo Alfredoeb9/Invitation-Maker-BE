@@ -19,6 +19,7 @@ export const users = createTable(
     firstName: text("first_name").notNull(),
     lastName: text("last_name").notNull(),
     userName: text("user_name").notNull(),
+    credits: int("credits", { mode: "number" }).default(15),
   },
   (users) => ({
     emailIdx: uniqueIndex("emailIdx").on(users.email),

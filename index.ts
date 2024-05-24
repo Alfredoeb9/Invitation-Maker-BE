@@ -2,6 +2,7 @@ import express, { Express, NextFunction, Request, Response } from "express";
 // import authRoutes from "./routes/authRoutes.js";
 import cors from "cors";
 import bodyParser from "body-parser";
+import authRoutes from "./routes/authRoutes.js";
 // import todoRoutes from "./routes/todoRoutes.js";
 
 const port = 8000;
@@ -21,12 +22,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-// app.use("/api/auth", authRoutes);
+app.use("/api/auth", authRoutes);
 // app.use("/api/todo", todoRoutes);
-
-app.get("/", (req: Request, res: Response) => {
-  return res.send("yess");
-});
 
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);
