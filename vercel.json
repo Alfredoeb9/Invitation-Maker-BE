@@ -1,5 +1,9 @@
 {
   "version": 2,
+  "buildCommand": "npm run build",
+  "framework": "null",
+  "installCommand": "npm install",
+  "outputDirectory": "dist",
   "builds": [
     {
       "src": "dist/index.js",
@@ -9,7 +13,7 @@
   ],
   "routes": [
     {
-      "src": "/(.*)",
+      "src": "/.*",
       "dest": "dist/index.js"
     }
   ]
