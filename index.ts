@@ -22,6 +22,10 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
+app.get("/", (_req: Request, res: Response) => {
+  return res.send("Express Typescript on Vercel");
+});
+
 app.use("/api/auth", authRoutes);
 // app.use("/api/todo", todoRoutes);
 
