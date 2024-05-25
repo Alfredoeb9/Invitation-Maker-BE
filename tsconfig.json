@@ -10,11 +10,10 @@
   },
   "include": [
     ".eslintrc.cjs",
-    "**/*.ts",
-    "**/*.tsx",
     "**/*.cjs",
     "**/*.js",
     "./*.js",
+    "./api/*.ts",
     "./"
   ],
   "exclude": ["node_modules"]

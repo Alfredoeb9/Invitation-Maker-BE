@@ -9,7 +9,7 @@
     "push": "drizzle-kit push",
     "migrate": "drizzle-kit migrate",
     "build": "rimraf dist && tsc",
-    "dev": "tsx watch index.ts",
+    "dev": "tsx watch api/index.ts",
     "vercel-build": "echo hello"
   },
   "author": "",
