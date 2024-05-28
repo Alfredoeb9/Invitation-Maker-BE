@@ -14,11 +14,13 @@ export const createTable = sqliteTableCreator((name) => `inv_${name}`);
 export const users = createTable(
   "users",
   {
-    id: integer("id").primaryKey(),
+    id: text("id").primaryKey(),
     email: text("email").notNull(),
+    password: text("password").notNull(),
     firstName: text("first_name").notNull(),
     lastName: text("last_name").notNull(),
     userName: text("user_name").notNull(),
+    isVerified: int("verified", { mode: "boolean" }),
     credits: int("credits", { mode: "number" }).default(15),
   },
   (users) => ({
@@ -30,20 +32,14 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   token: one(verificationTokens),
 }));
 
-export const verificationTokens = createTable(
-  "activateToken",
-  {
-    id: text("id", { length: 255 }).notNull(),
-    token: text("token", { length: 384 }).notNull(),
-    createdAt: int("created_at")
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: int("updated_at", { mode: "timestamp" }),
-  },
-  (vt) => ({
-    compoundKey: primaryKey({ columns: [vt.id, vt.token] }),
-  })
-);
+export const verificationTokens = createTable("activateToken", {
+  id: text("id").primaryKey(),
+  token: text("token", { length: 384 }).notNull(),
+  createdAt: int("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: text("updated_at"),
+});
 
 export const verificationTokensRelation = relations(
   verificationTokens,

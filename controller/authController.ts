@@ -1,8 +1,12 @@
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
+import validator from "validator";
+import bcrypt from "bcrypt";
 import { db } from "../db/index.js";
-import { users } from "../db/schema.js";
+import { users, verificationTokens } from "../db/schema.js";
 import { eq } from "drizzle-orm";
 import jwt from "jsonwebtoken";
+import { sendVerifyingUserEmail } from "../lib/mailer.js";
+import { randomUUID } from "crypto";
 
 async function emailRegex(email: string) {
   const emailRegex = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
@@ -20,7 +24,16 @@ export const signUp = async (req: Request, res: Response) => {
 
     const isValidEmail = await emailRegex(email);
 
-    if (!isValidEmail) throw Error("Please provide a proper email");
+    if (!isValidEmail || !password)
+      throw Error("Please provide a proper email");
+
+    if (!validator.isEmail(email)) {
+      throw Error("Email is not valid");
+    }
+
+    if (!validator.isStrongPassword(password)) {
+      throw Error("Password is not strong enough");
+    }
 
     // check if email is used
     const isUserSignedUp = await db
@@ -33,23 +46,59 @@ export const signUp = async (req: Request, res: Response) => {
       return res.status(201).json({ isUserSignedUp, message: "Logged in" });
     }
 
+    const salt = await bcrypt.genSalt(10);
+
+    const hash = await bcrypt.hash(password, salt);
+    const id = randomUUID();
+
     // else we have a new user and lets put them in the database
     const newUser = await db
       .insert(users)
-      .values({ email, firstName, lastName, userName })
+      .values({ id, email, firstName, lastName, userName, password: hash })
       .returning();
 
-    const token = await createToken(newUser["id"]);
+    const userId = newUser[0]?.id;
+
+    const token = await createToken(userId);
 
     const link = `${process.env.REACT_APP_AUTH_BASE_URL}/verify-email/${token}`;
     const fullName = firstName + " " + lastName;
 
-    // await sendVerifyingUserEmail(newUser["email"], fullName, link);
+    await sendVerifyingUserEmail(email, fullName, link);
+
+    await db
+      .insert(verificationTokens)
+      .values({
+        id: userId,
+        token: token,
+      })
+      .returning();
+
     return res
       .status(201)
       .json({ email, token, message: "Email Verification sent...!" });
     // successful sign up
     // return res.status(201).json({ newUser, message: "User signed up" });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};
+
+export const verifyEmail = async (req: Request, res: Response) => {
+  try {
+    const token = req.headers.authorization;
+
+    if (!token) throw new Error("Please provide a proper link");
+
+    const currentDate = new Date().toLocaleString("sv-SE");
+
+    // update verification
+    await db
+      .update(verificationTokens)
+      .set({ updatedAt: currentDate })
+      .where(eq(verificationTokens.id, req["user"]));
+
+    return res.status(201).json({ message: "User Authenicated" });
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }

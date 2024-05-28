@@ -4,7 +4,7 @@ import { getForgotTemplate } from "../services/templateService";
 const SMTPConfig = {
   service: "gmail",
   EMAIL: process.env.REACT_APP_SERVER_EMAIL,
-  PASSWORD: process.env.REACT_APPEMAIL_PWD,
+  PASSWORD: process.env.REACT_APP_MAIL_PWD,
   PORT: 587,
   FROM_EMAIL: process.env.REACT_APP_SERVER_EMAIL,
 };
