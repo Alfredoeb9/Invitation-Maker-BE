@@ -18,6 +18,34 @@ const createToken = async (_id: string) => {
   return jwt.sign({ _id }, process.env.JWT_SECRET);
 };
 
+export const login = async (req: Request, res: Response) => {
+  try {
+    const credValues = req.body;
+
+    const user = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, credValues.email));
+
+    if (!user) throw Error("Incorrect Email, try signing up!");
+
+    const doesPasswordMatch = await bcrypt.compare(
+      credValues.password,
+      user[0].password
+    );
+
+    if (!doesPasswordMatch) throw Error("Incorrect login credentials");
+
+    const { password, ...otherDetails } = user[0];
+
+    return res
+      .status(201)
+      .json({ data: { ...otherDetails }, message: "User Logged in" });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};
+
 export const signUp = async (req: Request, res: Response) => {
   try {
     const { email, password, firstName, lastName, userName } = req.body;
@@ -97,6 +125,11 @@ export const verifyEmail = async (req: Request, res: Response) => {
       .update(verificationTokens)
       .set({ updatedAt: currentDate })
       .where(eq(verificationTokens.id, req["user"]));
+
+    await db
+      .update(users)
+      .set({ isVerified: true })
+      .where(eq(users.id, req["user"]));
 
     return res.status(201).json({ message: "User Authenicated" });
   } catch (error) {
