@@ -38,9 +38,7 @@ export const login = async (req: Request, res: Response) => {
 
     const { password, ...otherDetails } = user[0];
 
-    return res
-      .status(201)
-      .json({ data: { ...otherDetails }, message: "User Logged in" });
+    return res.status(201).json({ ...otherDetails, message: "User Logged in" });
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }
