@@ -20,6 +20,7 @@ const createToken = async (_id: string) => {
 
 export const login = async (req: Request, res: Response) => {
   try {
+    console.log("req", req);
     const credValues = req.body;
 
     const user = await db
