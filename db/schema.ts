@@ -5,6 +5,7 @@ import {
   primaryKey,
   sqliteTableCreator,
   text,
+  unique,
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 
@@ -52,17 +53,23 @@ export const verificationTokensRelation = relations(
   })
 );
 
-export const invitations = createTable("invitations", {
-  id: text("id").primaryKey(),
-  name: text("name", { length: 150 }).notNull(),
-  createdBy: text("created_by").notNull(),
-  description: text("text", { length: 384 }),
-  content: text("content", { mode: "json" })
-    .$type<string[]>()
-    .default(sql`'[]'`),
-  published: int("published", { mode: "boolean" }).default(false),
-  shareURL: text("share_url"),
-});
+export const invitations = createTable(
+  "invitations",
+  {
+    id: text("id").primaryKey(),
+    name: text("name", { length: 150 }).notNull(),
+    createdBy: text("created_by").notNull(),
+    description: text("text", { length: 384 }),
+    content: text("content", { mode: "json" })
+      .$type<string[]>()
+      .default(sql`'[]'`),
+    published: int("published", { mode: "boolean" }).default(false),
+    shareURL: text("share_url"),
+  },
+  (invitations) => ({
+    nameInvitations: unique("nameInvitationsIdx").on(invitations.name),
+  })
+);
 
 export const invitationsRelation = relations(invitations, ({ one }) => ({
   invitation: one(invitationsForm),
@@ -72,13 +79,21 @@ export const invitationsRelation = relations(invitations, ({ one }) => ({
   }),
 }));
 
-export const invitationsForm = createTable("invitations_form", {
-  id: text("id").primaryKey(),
-  createdAt: int("created_at")
-    .default(sql`CURRENT_TIMESTAMP`)
-    .notNull(),
-  formId: text("form_id").notNull(),
-});
+export const invitationsForm = createTable(
+  "invitations_form",
+  {
+    id: text("id").primaryKey(),
+    createdAt: int("created_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    formId: text("form_id").notNull(),
+  },
+  (invitationsForms) => ({
+    formIdInvitationsFormsIdx: uniqueIndex("formIdInvitationsFormsIdx").on(
+      invitationsForms.id
+    ),
+  })
+);
 
 export const invitationsFormRelation = relations(
   invitationsForm,
