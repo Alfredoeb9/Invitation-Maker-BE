@@ -67,7 +67,10 @@ export const invitations = createTable(
     shareURL: text("share_url"),
   },
   (invitations) => ({
-    nameInvitations: unique("nameInvitationsIdx").on(invitations.name),
+    nameInvitations: unique("nameInvitationsIdx").on(
+      invitations.name,
+      invitations.createdBy
+    ),
   })
 );
 
