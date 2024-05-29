@@ -30,6 +30,7 @@ export const users = createTable(
 
 export const usersRelations = relations(users, ({ one, many }) => ({
   token: one(verificationTokens),
+  invitations: many(invitations),
 }));
 
 export const verificationTokens = createTable("activateToken", {
@@ -47,6 +48,44 @@ export const verificationTokensRelation = relations(
     user: one(users, {
       fields: [verificationTokens.id],
       references: [users.id],
+    }),
+  })
+);
+
+export const invitations = createTable("invitations", {
+  id: text("id").primaryKey(),
+  name: text("name", { length: 150 }).notNull(),
+  createdBy: text("created_by").notNull(),
+  description: text("text", { length: 384 }),
+  content: text("content", { mode: "json" })
+    .$type<string[]>()
+    .default(sql`'[]'`),
+  published: int("published", { mode: "boolean" }).default(false),
+  shareURL: text("share_url"),
+});
+
+export const invitationsRelation = relations(invitations, ({ one }) => ({
+  invitation: one(invitationsForm),
+  user: one(users, {
+    fields: [invitations.createdBy],
+    references: [users.email],
+  }),
+}));
+
+export const invitationsForm = createTable("invitations_form", {
+  id: text("id").primaryKey(),
+  createdAt: int("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  formId: text("form_id").notNull(),
+});
+
+export const invitationsFormRelation = relations(
+  invitationsForm,
+  ({ one }) => ({
+    invitation: one(invitations, {
+      fields: [invitationsForm.formId],
+      references: [invitations.id],
     }),
   })
 );

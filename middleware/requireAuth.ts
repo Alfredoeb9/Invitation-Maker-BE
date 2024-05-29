@@ -22,7 +22,6 @@ export const requireAuth = async (
       process.env.JWT_SECRET,
       res
     );
-    console.log("response", response);
 
     req["user"] = response["_id"];
 

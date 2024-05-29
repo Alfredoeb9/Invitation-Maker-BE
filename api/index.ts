@@ -3,6 +3,7 @@ import express, { Express, NextFunction, Request, Response } from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import authRoutes from "../routes/authRoutes.js";
+import invitationRoutes from "../routes/invitationRoutes.js";
 // import todoRoutes from "./routes/todoRoutes.js";
 
 const port = 8000;
@@ -27,6 +28,7 @@ app.get("/", (_req: Request, res: Response) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/inv", invitationRoutes);
 // app.use("/api/todo", todoRoutes);
 
 app.listen(port, () => {
