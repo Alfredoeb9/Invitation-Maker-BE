@@ -1,17 +1,25 @@
 import type { Response, Request } from "express";
 import { db } from "../db";
+import { eq } from "drizzle-orm";
+
 import { invitations, invitationsForm } from "../db/schema";
 
 export const createInv = async (req: Request, res: Response) => {
   try {
-    const { name, description, email } = req.body;
+    const { name, description, email, userId } = req.body;
 
     const formIdUUID = crypto.randomUUID();
     const invitationUUID = crypto.randomUUID();
 
     await db
       .insert(invitations)
-      .values({ id: formIdUUID, name: name, createdBy: email, description })
+      .values({
+        id: formIdUUID,
+        name: name,
+        createdBy: email,
+        description,
+        createdById: userId,
+      })
       .returning();
     await db
       .insert(invitationsForm)
@@ -24,6 +32,21 @@ export const createInv = async (req: Request, res: Response) => {
     ) {
       error.message = "Name is taken in your repository";
     }
+    return res.status(400).json({ error: error.message });
+  }
+};
+
+export const getAllInvitations = async (req: Request, res: Response) => {
+  try {
+    const userId = req["user"];
+
+    const allInvitations = await db
+      .select()
+      .from(invitations)
+      .where(eq(invitations.createdById, userId));
+
+    return res.status(201).json({ allInvitations });
+  } catch (error) {
     return res.status(400).json({ error: error.message });
   }
 };

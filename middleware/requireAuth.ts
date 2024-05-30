@@ -11,7 +11,7 @@ export const requireAuth = async (
   next: NextFunction
 ) => {
   const { authorization } = req.headers;
-
+  console.log("running");
   if (!authorization) {
     return res.status(401).json({ error: "Authorization token required" });
   }

@@ -20,7 +20,6 @@ const createToken = async (_id: string) => {
 
 export const login = async (req: Request, res: Response) => {
   try {
-    console.log("req", req);
     const credValues = req.body;
 
     const user = await db
@@ -37,9 +36,21 @@ export const login = async (req: Request, res: Response) => {
 
     if (!doesPasswordMatch) throw Error("Incorrect login credentials");
 
+    const token = await createToken(user[0].id);
+
+    const currentDate = new Date().toLocaleString("sv-SE");
+
+    // update verification
+    await db
+      .update(verificationTokens)
+      .set({ updatedAt: currentDate })
+      .where(eq(verificationTokens.id, user[0].id));
+
     const { password, ...otherDetails } = user[0];
 
-    return res.status(201).json({ ...otherDetails, message: "User Logged in" });
+    const responseData = { ...otherDetails, token };
+
+    return res.status(201).json({ responseData, message: "User Logged in" });
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }
