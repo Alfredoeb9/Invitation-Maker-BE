@@ -59,6 +59,7 @@ export const invitations = createTable(
     id: text("id").primaryKey(),
     name: text("name", { length: 150 }).notNull(),
     createdBy: text("created_by").notNull(),
+    createdById: text("created_by_id").notNull(),
     description: text("text", { length: 384 }),
     content: text("content", { mode: "json" })
       .$type<string[]>()
@@ -77,8 +78,8 @@ export const invitations = createTable(
 export const invitationsRelation = relations(invitations, ({ one }) => ({
   invitation: one(invitationsForm),
   user: one(users, {
-    fields: [invitations.createdBy],
-    references: [users.email],
+    fields: [invitations.createdBy, invitations.createdById],
+    references: [users.email, users.id],
   }),
 }));
 
