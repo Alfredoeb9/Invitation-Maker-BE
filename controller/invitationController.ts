@@ -50,3 +50,20 @@ export const getAllInvitations = async (req: Request, res: Response) => {
     return res.status(400).json({ error: error.message });
   }
 };
+
+export const deleteInvitation = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!req["user"]) {
+      throw new Error("User is not authorized");
+    }
+
+    await db.delete(invitations).where(eq(invitations.id, id));
+    await db.delete(invitationsForm).where(eq(invitationsForm.id, id));
+
+    return res.status(201).json({ message: "Invitation deleted" });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};

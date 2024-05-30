@@ -4,6 +4,7 @@ import { requireAuth } from "../middleware/requireAuth.js";
 import {
   createInv,
   getAllInvitations,
+  deleteInvitation,
 } from "../controller/invitationController.js";
 
 const router = express.Router();
@@ -17,7 +18,7 @@ router.get("/", getAllInvitations);
 router.post("/create", createInv);
 
 // DELETE a invitations
-// router.post("/:id", deleteWorkout);
+router.delete("/:id", deleteInvitation);
 
 // UPDATE a invitation
 // router.put("/:id", updateWorkout)
