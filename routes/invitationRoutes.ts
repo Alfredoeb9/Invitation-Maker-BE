@@ -4,6 +4,7 @@ import { requireAuth } from "../middleware/requireAuth.js";
 import {
   createInv,
   getAllInvitations,
+  getSingleInvitation,
   deleteInvitation,
 } from "../controller/invitationController.js";
 
@@ -13,6 +14,9 @@ const router = express.Router();
 router.use(requireAuth);
 // GET ALL
 router.get("/", getAllInvitations);
+
+// GET Single invitation
+router.get("/:id", getSingleInvitation);
 
 // CREATE invitation
 router.post("/create", createInv);

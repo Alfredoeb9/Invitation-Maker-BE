@@ -11,7 +11,7 @@ export const createInv = async (req: Request, res: Response) => {
     const formIdUUID = crypto.randomUUID();
     const invitationUUID = crypto.randomUUID();
 
-    await db
+    const newInv = await db
       .insert(invitations)
       .values({
         id: formIdUUID,
@@ -25,7 +25,9 @@ export const createInv = async (req: Request, res: Response) => {
       .insert(invitationsForm)
       .values({ id: invitationUUID, formId: formIdUUID });
 
-    return res.status(201).json({ message: "New invitation created" });
+    return res
+      .status(201)
+      .json({ data: newInv, message: "New invitation created" });
   } catch (error) {
     if (
       error.message.includes("UNIQUE constraint failed: inv_invitations.name")
@@ -46,6 +48,21 @@ export const getAllInvitations = async (req: Request, res: Response) => {
       .where(eq(invitations.createdById, userId));
 
     return res.status(201).json({ allInvitations });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};
+
+export const getSingleInvitation = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const singleInvitations = await db
+      .select()
+      .from(invitations)
+      .where(eq(invitations.id, id));
+
+    return res.status(201).json({ data: singleInvitations });
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }
