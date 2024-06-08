@@ -1,9 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { eq } from "drizzle-orm";
 import { verifyToken } from "../lib/passport";
-import { db } from "../db";
-import { users } from "../db/schema";
-// import { users } from "../db/schema";
 
 export const requireAuth = async (
   req: Request,
